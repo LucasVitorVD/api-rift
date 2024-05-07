@@ -16,5 +16,5 @@ public class CategoryDTO {
     private Long id;
     private String name;
 
-    private final List<RecommendationDTO> recommendationDTOS = new ArrayList<>();
+    private final List<RecommendationDTO> recommendations = new ArrayList<>();
 }

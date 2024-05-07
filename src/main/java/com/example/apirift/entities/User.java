@@ -1,6 +1,5 @@
 package com.example.apirift.entities;
 
-import com.example.apirift.entitiesDTO.UserDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,11 +25,4 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private Set<Recommendation> recommendations = new HashSet<>();
-
-    public User(UserDTO data) {
-        this.id = data.id();
-        this.name = data.name();
-        this.email = data.email();
-        this.picture = data.picture();
-    }
 }

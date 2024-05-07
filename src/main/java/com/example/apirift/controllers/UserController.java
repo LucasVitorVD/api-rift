@@ -1,6 +1,5 @@
 package com.example.apirift.controllers;
 
-import com.example.apirift.entities.User;
 import com.example.apirift.entitiesDTO.UserDTO;
 import com.example.apirift.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,25 +19,25 @@ public class UserController {
     private UserService service;
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        List<User> users = service.findAll();
+    public ResponseEntity<List<UserDTO>> getUsers() {
+        List<UserDTO> users = service.findAll();
 
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable String id) {
-        User user = service.findById(id);
+    public ResponseEntity<UserDTO> getUser(@PathVariable String id) {
+        UserDTO user = service.findById(id);
 
         return ResponseEntity.ok(user);
     }
 
     @PostMapping
     @Transactional
-    public ResponseEntity<User> createUser(@RequestBody UserDTO data) {
-        User savedUser = service.save(data);
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO data) {
+        UserDTO savedUser = service.save(data);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(data.id()).toUri();
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(data.getId()).toUri();
 
         return ResponseEntity.created(uri).body(savedUser);
     }
@@ -53,7 +52,9 @@ public class UserController {
 
     @PutMapping
     @Transactional
-    public User updateUser(@RequestBody UserDTO updatedData) {
-        return service.update(updatedData);
+    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO updatedData) {
+        UserDTO updatedUser = service.update(updatedData);
+
+        return ResponseEntity.ok(updatedUser);
     }
 }
