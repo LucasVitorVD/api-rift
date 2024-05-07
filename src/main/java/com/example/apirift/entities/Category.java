@@ -1,6 +1,5 @@
 package com.example.apirift.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +12,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
