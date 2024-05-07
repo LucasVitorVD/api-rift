@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,30 +31,49 @@ public class RecommendationService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<Recommendation> findAll() {
-        return repository.findAll();
+    public List<RecommendationDTO> findAll() {
+        List<Recommendation> recommendations = repository.findAll();
+
+        if (recommendations.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return recommendations.stream().map(this::convertToDTO).toList();
     }
 
-    public Recommendation findById(Long id) {
-        Optional<Recommendation> user = repository.findById(id);
+    public RecommendationDTO findById(Long id) {
+        Optional<Recommendation> recommendationOptional = repository.findById(id);
 
-        return user.orElseThrow(() -> new ResourceNotFoundException(id));
+        if (recommendationOptional.isPresent()) {
+            return convertToDTO(recommendationOptional.get());
+        } else {
+            throw new ResourceNotFoundException(id);
+        }
     }
 
-    public Recommendation save(RecommendationDTO data) {
+    public RecommendationDTO save(RecommendationDTO data) {
         try {
-            User user = userRepository.getReferenceById(data.userId());
-            Category category = categoryRepository.getReferenceById(data.categoryId());
+            User user = userRepository.findById(data.getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + data.getUserId()));
 
-            Recommendation newRecommendation = new Recommendation(data);
+            Category category = categoryRepository.findById(data.getCategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + data.getCategoryId()));
 
+            Recommendation newRecommendation = new Recommendation();
+
+            newRecommendation.setName(data.getName());
+            newRecommendation.setDescription(data.getDescription());
+            newRecommendation.setImage(data.getImage());
+            newRecommendation.setPreviewUrl(data.getPreviewUrl());
+            newRecommendation.setPersonalComment(data.getPersonalComment());
             newRecommendation.setUser(user);
             newRecommendation.setCategory(category);
 
+            Recommendation savedRecommendation = repository.save(newRecommendation);
 
-            return repository.save(newRecommendation);
+            return convertToDTO(savedRecommendation);
         } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException(data.userId());
+            throw new ResourceNotFoundException(data.getUserId());
         }
     }
 
@@ -67,24 +87,41 @@ public class RecommendationService {
         }
     }
 
-    public Recommendation update(RecommendationDTO updatedData) {
+    public RecommendationDTO update(RecommendationDTO updatedData) {
         try {
-            Recommendation referenceRecommendation = repository.findById(updatedData.id()).orElseThrow(() -> new ResourceNotFoundException(updatedData.id()));
-            Category category = categoryRepository.getReferenceById(updatedData.categoryId());
+            Recommendation referenceRecommendation = repository.findById(updatedData.getId()).orElseThrow(() -> new ResourceNotFoundException(updatedData.getId()));
+            Category category = categoryRepository.getReferenceById(updatedData.getCategoryId());
 
-            updateData(referenceRecommendation, updatedData, category);
+            Recommendation updatedRecommendation = updateData(referenceRecommendation, updatedData, category);
 
-            return referenceRecommendation;
+            return convertToDTO(updatedRecommendation);
         } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException(updatedData.id());
+            throw new ResourceNotFoundException(updatedData.getId());
         }
     }
 
-    private void updateData(Recommendation entity, RecommendationDTO obj, Category categoryReference) {
-        entity.setTitle(obj.title());
-        entity.setImg(obj.img());
+    private RecommendationDTO convertToDTO(Recommendation recommendation) {
+        RecommendationDTO dto = new RecommendationDTO();
+        dto.setId(recommendation.getId());
+        dto.setName(recommendation.getName());
+        dto.setDescription(recommendation.getDescription());
+        dto.setImage(recommendation.getImage());
+        dto.setPersonalComment(recommendation.getPersonalComment());
+        dto.setPreviewUrl(recommendation.getPreviewUrl());
+        dto.setUserId(recommendation.getUser().getId());
+        dto.setCategoryId(recommendation.getCategory().getId());
+
+        return dto;
+    }
+
+    private Recommendation updateData(Recommendation entity, RecommendationDTO obj, Category categoryReference) {
+        entity.setName(obj.getName());
+        entity.setImage(obj.getImage());
         entity.setCategory(categoryReference);
-        entity.setDescription(obj.description());
-        entity.setPreviewUrl(obj.previewUrl());
+        entity.setDescription(obj.getDescription());
+        entity.setPreviewUrl(obj.getPreviewUrl());
+        entity.setPersonalComment(obj.getPersonalComment());
+
+        return repository.save(entity);
     }
 }

@@ -16,26 +16,21 @@ import java.util.Set;
 @EqualsAndHashCode(of = "id")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    private String username;
+    private String name;
 
     private String email;
 
-    @Column(name = "full_name")
-    private String fullName;
-
-    @Column(name = "profile_image_url")
-    private String profileImageUrl;
+    private String picture;
 
     @OneToMany(mappedBy = "user")
     private Set<Recommendation> recommendations = new HashSet<>();
 
     public User(UserDTO data) {
-        this.username = data.username();
+        this.id = data.id();
+        this.name = data.name();
         this.email = data.email();
-        this.fullName = data.fullName();
-        this.profileImageUrl = data.profileImageUrl();
+        this.picture = data.picture();
     }
 }

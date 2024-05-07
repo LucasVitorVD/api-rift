@@ -23,7 +23,7 @@ public class UserService {
         return repository.findAll();
     }
 
-    public User findById(Long id) {
+    public User findById(String id) {
         Optional<User> user = repository.findById(id);
 
         return user.orElseThrow(() -> new ResourceNotFoundException(id));
@@ -34,7 +34,7 @@ public class UserService {
         return repository.save(newUser);
     }
 
-    public void delete(Long id) {
+    public void delete(String id) {
         User user = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 
         if (!user.getRecommendations().isEmpty()) {
@@ -61,9 +61,8 @@ public class UserService {
     }
 
     private void updateData(User entity, UserDTO obj) {
-        entity.setUsername(obj.username());
-        entity.setFullName(obj.fullName());
+        entity.setName(obj.name());
         entity.setEmail(obj.email());
-        entity.setProfileImageUrl(obj.profileImageUrl());
+        entity.setPicture(obj.picture());
     }
 }

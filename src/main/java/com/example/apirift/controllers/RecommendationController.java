@@ -1,6 +1,5 @@
 package com.example.apirift.controllers;
 
-import com.example.apirift.entities.Recommendation;
 import com.example.apirift.entitiesDTO.RecommendationDTO;
 import com.example.apirift.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,29 +19,28 @@ public class RecommendationController {
     private RecommendationService service;
 
     @GetMapping
-    public ResponseEntity<List<Recommendation>> getRecommendations() {
-        List<Recommendation> recommendations = service.findAll();
+    public ResponseEntity<List<RecommendationDTO>> getRecommendations() {
+        List<RecommendationDTO> recommendations = service.findAll();
 
         return ResponseEntity.ok(recommendations);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Recommendation> getRecommendation(@PathVariable Long id) {
-        Recommendation recommendation = service.findById(id);
+    public ResponseEntity<RecommendationDTO> getRecommendation(@PathVariable Long id) {
+        RecommendationDTO recommendation = service.findById(id);
 
         return ResponseEntity.ok(recommendation);
     }
 
     @PostMapping
     @Transactional
-    public ResponseEntity<Recommendation> addRecommendation(@RequestBody RecommendationDTO data) {
-        Recommendation newRecommendation = service.save(data);
+    public ResponseEntity<RecommendationDTO> addRecommendation(@RequestBody RecommendationDTO data) {
+        RecommendationDTO newRecommendation = service.save(data);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newRecommendation.getId()).toUri();
 
         return ResponseEntity.created(uri).body(newRecommendation);
     }
-
 
     @DeleteMapping("/{id}")
     @Transactional
@@ -54,8 +52,8 @@ public class RecommendationController {
 
     @PutMapping
     @Transactional
-    public ResponseEntity<Recommendation> updateRecommendation(@RequestBody RecommendationDTO updatedData) {
-        Recommendation updatedRecommendation = service.update(updatedData);
+    public ResponseEntity<RecommendationDTO> updateRecommendation(@RequestBody RecommendationDTO updatedData) {
+        RecommendationDTO updatedRecommendation = service.update(updatedData);
 
         return ResponseEntity.ok(updatedRecommendation);
     }
