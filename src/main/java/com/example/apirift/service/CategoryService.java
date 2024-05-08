@@ -56,7 +56,7 @@ public class CategoryService {
             recommendationDTO.setCategoryId(recommendation.getCategory().getId());
             recommendationDTO.setUserId(recommendation.getUser().getId());
 
-            dto.getRecommendationDTOS().add(recommendationDTO);
+            dto.getRecommendations().add(recommendationDTO);
         });
 
         return dto;
