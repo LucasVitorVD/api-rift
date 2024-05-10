@@ -28,6 +28,16 @@ public class CategoryService {
         return categories.stream().map(this::convertToDTO).toList();
     }
 
+    public CategoryDTO findByName(String categoryName) {
+        Optional<Category> categoryOptional = repository.findByName(categoryName);
+
+        if (categoryOptional.isPresent()) {
+            return convertToDTO(categoryOptional.get());
+        } else {
+            throw new ResourceNotFoundException(categoryName);
+        }
+    }
+
     public CategoryDTO findById(Long id) {
         Optional<Category> categoryOptional = repository.findById(id);
 

@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -21,6 +20,13 @@ public class CategoryController {
         List<CategoryDTO> categories = service.findAll();
 
         return ResponseEntity.ok(categories);
+    }
+
+    @GetMapping(params = "category")
+    public ResponseEntity<CategoryDTO> findCategoryByName(@RequestParam(name = "category") String categoryName) {
+        CategoryDTO category = service.findByName(categoryName);
+
+        return ResponseEntity.ok(category);
     }
 
     @GetMapping(value = "/{id}")
