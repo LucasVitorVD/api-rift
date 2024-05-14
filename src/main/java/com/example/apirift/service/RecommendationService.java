@@ -87,16 +87,16 @@ public class RecommendationService {
         }
     }
 
-    public RecommendationDTO update(RecommendationDTO updatedData) {
+    public RecommendationDTO update(Long id, RecommendationDTO updatedData) {
         try {
-            Recommendation referenceRecommendation = repository.findById(updatedData.getId()).orElseThrow(() -> new ResourceNotFoundException(updatedData.getId()));
+            Recommendation referenceRecommendation = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
             Category category = categoryRepository.getReferenceById(updatedData.getCategoryId());
 
             Recommendation updatedRecommendation = updateData(referenceRecommendation, updatedData, category);
 
             return convertToDTO(updatedRecommendation);
         } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException(updatedData.getId());
+            throw new ResourceNotFoundException(id);
         }
     }
 

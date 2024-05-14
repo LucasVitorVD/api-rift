@@ -50,10 +50,10 @@ public class RecommendationController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<RecommendationDTO> updateRecommendation(@RequestBody RecommendationDTO updatedData) {
-        RecommendationDTO updatedRecommendation = service.update(updatedData);
+    public ResponseEntity<RecommendationDTO> updateRecommendation(@PathVariable Long id, @RequestBody RecommendationDTO updatedData) {
+        RecommendationDTO updatedRecommendation = service.update(id, updatedData);
 
         return ResponseEntity.ok(updatedRecommendation);
     }
