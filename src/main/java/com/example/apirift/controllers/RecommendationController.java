@@ -1,5 +1,6 @@
 package com.example.apirift.controllers;
 
+import com.example.apirift.entities.Recommendation;
 import com.example.apirift.entitiesDTO.RecommendationDTO;
 import com.example.apirift.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,10 +51,10 @@ public class RecommendationController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     @Transactional
-    public ResponseEntity<RecommendationDTO> updateRecommendation(@PathVariable Long id, @RequestBody RecommendationDTO updatedData) {
-        RecommendationDTO updatedRecommendation = service.update(id, updatedData);
+    public ResponseEntity<RecommendationDTO> updateRecommendation(@RequestBody RecommendationDTO updatedData) {
+        RecommendationDTO updatedRecommendation = service.update(updatedData);
 
         return ResponseEntity.ok(updatedRecommendation);
     }

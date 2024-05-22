@@ -3,6 +3,10 @@ package com.example.apirift.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "recommendations")
@@ -21,13 +25,20 @@ public class Recommendation {
 
     private String description;
 
-    @Column(name = "preview_url")
+    @Column(name = "previewUrl")
     private String previewUrl;
 
     private String image;
 
-    @Column(name = "personal_comment")
+    @Column(name = "personalComment")
     private String personalComment;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

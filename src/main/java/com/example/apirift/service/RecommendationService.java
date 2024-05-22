@@ -9,7 +9,6 @@ import com.example.apirift.repositories.RecommendationRepository;
 import com.example.apirift.repositories.UserRepository;
 import com.example.apirift.service.exceptions.DatabaseException;
 import com.example.apirift.service.exceptions.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -42,22 +41,19 @@ public class RecommendationService {
     }
 
     public RecommendationDTO findById(Long id) {
-        Optional<Recommendation> recommendationOptional = repository.findById(id);
+        Recommendation recommendation = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(id));
 
-        if (recommendationOptional.isPresent()) {
-            return convertToDTO(recommendationOptional.get());
-        } else {
-            throw new ResourceNotFoundException(id);
-        }
+        return convertToDTO(recommendation);
     }
 
     public RecommendationDTO save(RecommendationDTO data) {
         try {
             User user = userRepository.findById(data.getUserId())
-                    .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + data.getUserId()));
+                    .orElseThrow(() -> new DatabaseException("User not found with ID: " + data.getUserId()));
 
             Category category = categoryRepository.findById(data.getCategoryId())
-                    .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + data.getCategoryId()));
+                    .orElseThrow(() -> new DatabaseException("Category not found with ID: " + data.getCategoryId()));
 
             Recommendation newRecommendation = new Recommendation();
 
@@ -72,8 +68,8 @@ public class RecommendationService {
             Recommendation savedRecommendation = repository.save(newRecommendation);
 
             return convertToDTO(savedRecommendation);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException(data.getUserId());
+        } catch (DatabaseException err) {
+            throw new DatabaseException(err.getMessage());
         }
     }
 
@@ -87,31 +83,34 @@ public class RecommendationService {
         }
     }
 
-    public RecommendationDTO update(Long id, RecommendationDTO updatedData) {
+    public RecommendationDTO update(RecommendationDTO updatedData) {
         try {
-            Recommendation referenceRecommendation = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+            Recommendation referenceRecommendation = repository.findById(updatedData.getId()).
+                    orElseThrow(() -> new ResourceNotFoundException(updatedData.getId()));
+
             Category category = categoryRepository.getReferenceById(updatedData.getCategoryId());
 
             Recommendation updatedRecommendation = updateData(referenceRecommendation, updatedData, category);
 
             return convertToDTO(updatedRecommendation);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException(id);
+        } catch (ResourceNotFoundException err) {
+            throw new ResourceNotFoundException(err.getMessage());
         }
     }
 
     private RecommendationDTO convertToDTO(Recommendation recommendation) {
-        RecommendationDTO dto = new RecommendationDTO();
-        dto.setId(recommendation.getId());
-        dto.setName(recommendation.getName());
-        dto.setDescription(recommendation.getDescription());
-        dto.setImage(recommendation.getImage());
-        dto.setPersonalComment(recommendation.getPersonalComment());
-        dto.setPreviewUrl(recommendation.getPreviewUrl());
-        dto.setUserId(recommendation.getUser().getId());
-        dto.setCategoryId(recommendation.getCategory().getId());
-
-        return dto;
+        return new RecommendationDTO(
+                recommendation.getId(),
+                recommendation.getName(),
+                recommendation.getDescription(),
+                recommendation.getImage(),
+                recommendation.getPersonalComment(),
+                recommendation.getPreviewUrl(),
+                recommendation.getUser().getId(),
+                recommendation.getCategory().getId(),
+                recommendation.getCreatedAt(),
+                recommendation.getUpdatedAt()
+        );
     }
 
     private Recommendation updateData(Recommendation entity, RecommendationDTO obj, Category categoryReference) {
