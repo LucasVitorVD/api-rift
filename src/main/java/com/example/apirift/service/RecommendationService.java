@@ -12,11 +12,9 @@ import com.example.apirift.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RecommendationService {
@@ -30,14 +28,10 @@ public class RecommendationService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<RecommendationDTO> findAll() {
-        List<Recommendation> recommendations = repository.findAll();
+    public Page<RecommendationDTO> findAll(Pageable pageable) {
+        Page<Recommendation> recommendations = repository.findAll(pageable);
 
-        if (recommendations.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return recommendations.stream().map(this::convertToDTO).toList();
+        return recommendations.map(this::convertToDTO);
     }
 
     public RecommendationDTO findById(Long id) {
