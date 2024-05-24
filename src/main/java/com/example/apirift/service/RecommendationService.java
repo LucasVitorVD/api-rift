@@ -16,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class RecommendationService {
 
@@ -34,6 +36,30 @@ public class RecommendationService {
         return recommendations.map(this::convertToDTO);
     }
 
+    public List<RecommendationDTO> findRecommendationsByCategory(String categoryName, Pageable pageable) {
+        Category category = categoryRepository.findByName(categoryName)
+                .orElseThrow(() -> new ResourceNotFoundException(categoryName));
+
+        List<Recommendation> recommendations = repository.findAll(pageable).getContent()
+                .stream()
+                .filter(recommendation -> recommendation.getCategory().getId().equals(category.getId()))
+                .toList();
+
+        return recommendations.stream().map(this::convertToDTO).toList();
+    }
+
+    public List<RecommendationDTO> findUserRecommendations(String userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(userId));
+
+        List<Recommendation> recommendations = repository.findAll(pageable).getContent()
+                .stream()
+                .filter(recommendation -> recommendation.getUser().getId().equals(user.getId()))
+                .toList();
+
+        return recommendations.stream().map(this::convertToDTO).toList();
+    }
+
     public RecommendationDTO findById(Long id) {
         Recommendation recommendation = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(id));
@@ -47,10 +73,9 @@ public class RecommendationService {
                     .orElseThrow(() -> new DatabaseException("User not found with ID: " + data.getUserId()));
 
             Category category = categoryRepository.findById(data.getCategoryId())
-                    .orElseThrow(() -> new DatabaseException("Category not found with ID: " + data.getCategoryId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(data.getCategoryId()));
 
             Recommendation newRecommendation = new Recommendation();
-
             newRecommendation.setName(data.getName());
             newRecommendation.setDescription(data.getDescription());
             newRecommendation.setImage(data.getImage());
@@ -59,9 +84,7 @@ public class RecommendationService {
             newRecommendation.setUser(user);
             newRecommendation.setCategory(category);
 
-            Recommendation savedRecommendation = repository.save(newRecommendation);
-
-            return convertToDTO(savedRecommendation);
+            return convertToDTO(repository.save(newRecommendation));
         } catch (DatabaseException err) {
             throw new DatabaseException(err.getMessage());
         }
@@ -83,6 +106,7 @@ public class RecommendationService {
                     orElseThrow(() -> new ResourceNotFoundException(updatedData.getId()));
 
             Category category = categoryRepository.getReferenceById(updatedData.getCategoryId());
+
 
             Recommendation updatedRecommendation = updateData(referenceRecommendation, updatedData, category);
 
@@ -108,6 +132,7 @@ public class RecommendationService {
     }
 
     private Recommendation updateData(Recommendation entity, RecommendationDTO obj, Category categoryReference) {
+
         entity.setName(obj.getName());
         entity.setImage(obj.getImage());
         entity.setCategory(categoryReference);

@@ -29,13 +29,10 @@ public class CategoryService {
     }
 
     public CategoryDTO findByName(String categoryName) {
-        Optional<Category> categoryOptional = repository.findByName(categoryName);
+        Category category = repository.findByName(categoryName)
+                .orElseThrow(() -> new ResourceNotFoundException(categoryName));
 
-        if (categoryOptional.isPresent()) {
-            return convertToDTO(categoryOptional.get());
-        } else {
-            throw new ResourceNotFoundException(categoryName);
-        }
+        return convertToDTO(category);
     }
 
     public CategoryDTO findById(Long id) {
