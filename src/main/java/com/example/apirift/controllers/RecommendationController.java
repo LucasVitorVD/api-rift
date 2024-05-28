@@ -3,6 +3,7 @@ package com.example.apirift.controllers;
 import com.example.apirift.entitiesDTO.RecommendationDTO;
 import com.example.apirift.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
