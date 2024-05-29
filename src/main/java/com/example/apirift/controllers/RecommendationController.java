@@ -1,9 +1,9 @@
 package com.example.apirift.controllers;
 
 import com.example.apirift.entitiesDTO.RecommendationDTO;
+import com.example.apirift.entitiesDTO.ResponseDTO;
 import com.example.apirift.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ public class RecommendationController {
     private RecommendationService service;
 
     @GetMapping
-    public ResponseEntity<List<RecommendationDTO>> getRecommendationsByCategory(
+    public ResponseEntity<ResponseDTO> getRecommendationsByCategory(
             @RequestParam(name = "category", required = true) String categoryName,
             Pageable pageable
     ) {
@@ -29,7 +29,7 @@ public class RecommendationController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<RecommendationDTO>> getUserRecommendations(
+    public ResponseEntity<ResponseDTO> getUserRecommendations(
             @PathVariable String userId,
             Pageable pageable
     ) {
@@ -37,8 +37,8 @@ public class RecommendationController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<RecommendationDTO>> getRecommendations(Pageable pageable) {
-        return ResponseEntity.ok(service.findAll(pageable).getContent());
+    public ResponseEntity<ResponseDTO> getRecommendations(Pageable pageable) {
+        return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @GetMapping("/{id}")

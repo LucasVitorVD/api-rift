@@ -4,6 +4,7 @@ import com.example.apirift.entities.Category;
 import com.example.apirift.entities.Recommendation;
 import com.example.apirift.entities.User;
 import com.example.apirift.entitiesDTO.RecommendationDTO;
+import com.example.apirift.entitiesDTO.ResponseDTO;
 import com.example.apirift.repositories.CategoryRepository;
 import com.example.apirift.repositories.RecommendationRepository;
 import com.example.apirift.repositories.UserRepository;
@@ -30,34 +31,46 @@ public class RecommendationService {
     @Autowired
     private UserRepository userRepository;
 
-    public Page<RecommendationDTO> findAll(Pageable pageable) {
+    public ResponseDTO findAll(Pageable pageable) {
         Page<Recommendation> recommendations = repository.findAll(pageable);
 
-        return recommendations.map(this::convertToDTO);
+        List<RecommendationDTO> content = recommendations
+                .getContent()
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+
+        return convertToResponseDTO(recommendations, content);
     }
 
-    public List<RecommendationDTO> findRecommendationsByCategory(String categoryName, Pageable pageable) {
+    public ResponseDTO findRecommendationsByCategory(String categoryName, Pageable pageable) {
         Category category = categoryRepository.findByName(categoryName)
                 .orElseThrow(() -> new ResourceNotFoundException(categoryName));
 
-        List<Recommendation> recommendations = repository.findAll(pageable).getContent()
+        Page<Recommendation> recommendations = repository.findAll(pageable);
+
+        List<RecommendationDTO> content = recommendations.getContent()
                 .stream()
                 .filter(recommendation -> recommendation.getCategory().getId().equals(category.getId()))
+                .map(this::convertToDTO)
                 .toList();
 
-        return recommendations.stream().map(this::convertToDTO).toList();
+        return convertToResponseDTO(recommendations, content);
     }
 
-    public List<RecommendationDTO> findUserRecommendations(String userId, Pageable pageable) {
+    public ResponseDTO findUserRecommendations(String userId, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(userId));
 
-        List<Recommendation> recommendations = repository.findAll(pageable).getContent()
+        Page<Recommendation> recommendations = repository.findAll(pageable);
+
+        List<RecommendationDTO> content = recommendations.getContent()
                 .stream()
                 .filter(recommendation -> recommendation.getUser().getId().equals(user.getId()))
+                .map(this::convertToDTO)
                 .toList();
 
-        return recommendations.stream().map(this::convertToDTO).toList();
+        return convertToResponseDTO(recommendations, content);
     }
 
     public RecommendationDTO findById(Long id) {
@@ -131,8 +144,18 @@ public class RecommendationService {
         );
     }
 
-    private Recommendation updateData(Recommendation entity, RecommendationDTO obj, Category categoryReference) {
+    private ResponseDTO convertToResponseDTO(Page<Recommendation> entity, List<RecommendationDTO> content) {
+        return new ResponseDTO(
+                content,
+                entity.getNumber() + 1,
+                entity.getSize(),
+                entity.getTotalElements(),
+                entity.getTotalPages(),
+                entity.isLast()
+        );
+    }
 
+    private Recommendation updateData(Recommendation entity, RecommendationDTO obj, Category categoryReference) {
         entity.setName(obj.getName());
         entity.setImage(obj.getImage());
         entity.setCategory(categoryReference);
