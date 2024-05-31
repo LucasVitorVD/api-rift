@@ -1,16 +1,15 @@
-FROM maven:3.8.4-openjdk-17 AS build
+FROM ubuntu:latest AS build
 
-WORKDIR /app
+RUN apt-get update
+RUN apt-get install openjdk-17-jdk -y
+COPY . .
 
-COPY pom.xml .
-COPY src ./src
-
-RUN mvn clean package -DskipTests
+RUN ./mvnw bootJar --no-daemon
 
 FROM openjdk:17-jdk-slim
 
 EXPOSE 8080
 
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=target /target/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
