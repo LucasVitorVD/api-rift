@@ -1,7 +1,0 @@
-CREATE TABLE users (
-    id VARCHAR(100) PRIMARY KEY,
-    name VARCHAR(70),
-    email VARCHAR(100) NOT NULL,
-    picture VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);

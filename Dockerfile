@@ -13,6 +13,4 @@ EXPOSE 8080
 
 COPY --from=build /target/api-rift-0.0.1-SNAPSHOT.jar app.jar
 
-COPY /src/main/resources/db/migration /app/db/migration
-
 ENTRYPOINT [ "java", "-jar", "app.jar" ]
