@@ -139,8 +139,7 @@ public class RecommendationService {
                 recommendation.getPreviewUrl(),
                 recommendation.getUser().getId(),
                 recommendation.getCategory().getId(),
-                recommendation.getCreatedAt(),
-                recommendation.getUpdatedAt()
+                recommendation.getCreatedAt()
         );
     }
 

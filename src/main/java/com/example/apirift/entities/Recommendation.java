@@ -37,9 +37,6 @@ public class Recommendation {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore

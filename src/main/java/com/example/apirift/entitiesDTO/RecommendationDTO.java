@@ -21,5 +21,4 @@ public class RecommendationDTO {
     private String userId;
     private Long categoryId;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }
